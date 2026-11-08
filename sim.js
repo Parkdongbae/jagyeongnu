@@ -50,9 +50,15 @@ export const SBOX = { x: 2035, y: 120, z: 2205 };                         // 작
 // ---------- 동쪽 칸(시보 장치) ----------
 export const BAY = { x0: 1900, x1: 3900, y0: -1100, y1: 1100, mid: 1700, up: 2600, ft: 40, roof: 3500 };
 export const S12 = { colX: 2370, y: 410, tubeX: 2470, tubeY: 486, tubeZ0: 1830, tubeZ1: 2065, spoonZ: 1805 };
-export const HM = { x: 2470, yN: 501, yS: -865, zp: 600, tilt: 17, L: 1366, w: 31, t: 35 };   // 횡목 6자6치 × 1치5푼 × 1치7푼
+export const HM = { x: 2470, yN: 486, yS: -880, zp: 600, tilt: 17, L: 1366, w: 31, t: 35 };   // 횡목 6자6치 × 1치5푼 × 1치7푼
 HM.yp = (HM.yN + HM.yS) / 2; HM.half = HM.L / 2; HM.dz = HM.half * Math.sin(HM.tilt * Math.PI / 180);
-export const WH = { x: 2470, y: -465, R: 400, ring: 877, top: 1650, rodR: 330, poleY: -865 }; WH.lift = 2 * (WH.poleY - HM.yp) * -Math.sin(HM.tilt * Math.PI / 180);  // 평륜(가로 바퀴), 12신은 쇠 기둥(鐵條)을 따라 오르내림
+export const WH = { x: 2470, y: -465, R: 400, ring: 877, top: 1650, rodR: 340, poleY: -865 }; WH.lift = 2 * (WH.poleY - HM.yp) * -Math.sin(HM.tilt * Math.PI / 180);  // 평륜(가로 바퀴), 12신은 쇠 기둥(鐵條)을 따라 오르내림
+// 평륜 앞 비스듬한 구리판(서준 2007, 남문현 2002 그림): 보이던 신이 내려오다 발밑 쇠바퀴가 이 판에 막혀 굴러 내려가며 평륜을 30° 돌림
+// 각도(도)는 평륜 중심 기준(-90 = 남쪽 = 신이 올라가는 자리), r = 발밑 쇠바퀴가 지나는 반지름, z = 판 윗면
+export const RAMP = { r: 478, th0: -84, th1: -118, z0: 990, z1: 884, w: 36, t: 4, wheelZ: 882, open: 40, board: [-60, -84] };
+RAMP.zAt = th => RAMP.z0 + (RAMP.z1 - RAMP.z0) * (th - RAMP.th0) / (RAMP.th1 - RAMP.th0);
+// 신이 평륜과 함께 -90°에서 -120°로 도는 동안(u = 0→1) 구리판을 따라 내려가는 높이(쉬는 자리 기준)
+RAMP.dollOff = u => { const th = -90 - 30 * u; return th >= RAMP.th1 ? RAMP.zAt(th) - RAMP.wheelZ : Math.max(0, (RAMP.z1 - RAMP.wheelZ) * (th + 120) / (RAMP.th1 + 120)) }; WH.lift = 2 * (WH.poleY - HM.yp) * -Math.sin(HM.tilt * Math.PI / 180);  // 평륜(가로 바퀴), 12신은 쇠 기둥(鐵條)을 따라 오르내림
 export const GK = { LC: 2900, LF: 3060, RC: 3380, RF: 3540, y: 410, z0: 900 };           // 경점기: 좌원주·좌방주·우원주·우방주
 export const TL = k => ({ x: k % 2 === 0 ? GK.LF - 70 : GK.LF + 70, z: 1960 - 210 * k });   // 왼쪽(경) 숟가락 자리 k=0..4
 export const TR = k => ({ x: k % 2 === 0 ? GK.RF - 70 : GK.RF + 70, z: 1930 - 210 * k });   // 오른쪽(점) 숟가락 자리

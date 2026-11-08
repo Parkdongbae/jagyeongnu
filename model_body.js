@@ -4,7 +4,7 @@
 // 기구 해석: 남문현 『장영실과 자격루』의 그림 3-1~3-8, 김종성(2023) 「방목의 구조와 작동원리에 대한 새로운 가설」
 // 물그릇 모양·크기: 1536년 유물 / 나머지는 교육용 가정값 (앱의 「치수와 자료의 출처」에 구분)
 import * as SM from './sim.js';
-const { VS, SS, LID, BM, PL, ROD, CROSS, FLOAT, L0, SB, IB, BOARD, GZ, TUBE, holeD, holeX, tubeP, RU, cw, dOf, CH, CWALL, LV, FINGER, SBOX, ARM, bw, BAY, S12, HM, WH, GK, TL, TR, YG, YJ, FIG, INST, BIN, rodTop0, holeZ, runEvents, SIH, SI, JEOLGI } = SM;
+const { VS, SS, LID, BM, PL, ROD, CROSS, FLOAT, L0, SB, IB, BOARD, GZ, TUBE, holeD, holeX, tubeP, RU, cw, dOf, CH, CWALL, LV, FINGER, SBOX, ARM, bw, BAY, S12, HM, WH, GK, TL, TR, YG, YJ, FIG, INST, BIN, RAMP, rodTop0, holeZ, runEvents, SIH, SI, JEOLGI } = SM;
 export { SM };
 export const export_prof = {};
 
@@ -259,32 +259,50 @@ const sp12 = uni(box([(S12.colX + S12.tubeX) / 2 - 10, (S12.y + S12.tubeY) / 2 -
 const sp12f = (() => { const a = [S12.colX, S12.y, S12.spoonZ], b = [S12.tubeX, S12.tubeY, S12.spoonZ]; return uni(beam(a, [b[0] - 12, b[1] - 9, b[2]], 12, 6), cyl([S12.tubeX, S12.tubeY, S12.spoonZ + 3], 30, 30, 6, 20)) })();
 step('14_s12', '숟가락·쇠줄', [mem('12시 숟가락 장치(撥匙)', FE, sp12f, { mat: 'iron', mv: 'sp12', piv: [S12.colX, S12.y, S12.spoonZ], ax: [-(S12.tubeY - S12.y), S12.tubeX - S12.colX, 0] }),
   mem('들림막대(사시신 팔꿈치로)', FE, uni(rod([S12.colX, S12.y, S12.spoonZ + 10], [S12.colX, S12.y, BAY.up + BAY.ft + ARM.E[2] - 24], 14, 10), sph([S12.colX, S12.y, BAY.up + BAY.ft + ARM.E[2] - 24], 9)), { mat: 'iron', mv: 'link_s' }),
-  mem('작은 판을 여는 쇠줄', FE, rod([S12.colX + 50, 494, 520], [S12.colX + 50, 455, S12.spoonZ - 10], 5, 6), { mat: 'iron' })]);
-const hmN = diff(box([HM.x, HM.yp, HM.zp], [HM.w, HM.L, HM.t]), rod([HM.x - 20, HM.yp, HM.zp], [HM.x + 20, HM.yp, HM.zp], 21, 16));
+  mem('작은 판을 여는 쇠줄', FE, uni(rod([HM.x - 30, HM.yN + 1, 516], [HM.x - 30, 455, S12.spoonZ - 10], 5, 6), box([HM.x - 30, HM.yN + 3, 512], [6, 10, 8])), { mat: 'iron' })]);
+// 횡목 남쪽 끝 가까이(굴대에서 668)에 핀을 박고, 둥근 나무 아래 갈래(긴 홈)에 끼움 — 횡목이 기울어도 핀이 홈을 따라 미끄러지며 둥근 나무를 곧게 밀어 올림
+const PIN_D = HM.yp - WH.poleY;
+const hmN = uni(diff(box([HM.x, HM.yp, HM.zp], [HM.w, HM.L, HM.t]), rod([HM.x - 20, HM.yp, HM.zp], [HM.x + 20, HM.yp, HM.zp], 21, 16)), rod([HM.x - 25, HM.yp - PIN_D, HM.zp], [HM.x + 25, HM.yp - PIN_D, HM.zp], 8, 12));
 const HMR = mul(mul(T(HM.x, HM.yp, HM.zp), Rx(HM.tilt)), T(-HM.x, -HM.yp, -HM.zp)); const poleDZ = (WH.poleY - HM.yp) * Math.sin(HM.tilt * Math.PI / 180), poleDY = (WH.poleY - HM.yp) * (Math.cos(HM.tilt * Math.PI / 180) - 1);
 step('14_s12', '횡목', [mem('횡목(橫木)', WD2, xform(hmN, HMR), { mat: 'wood', mv: 'hm', piv: [HM.x, HM.yp, HM.zp], ax: [1, 0, 0] }),
   mem('횡목 짧은 기둥과 둥근 축', WD, uni(diff(box([HM.x - 24, HM.yp, 310], [14, 70, 620]), rod([HM.x - 35, HM.yp, HM.zp], [HM.x - 15, HM.yp, HM.zp], 21, 16)), diff(box([HM.x + 24, HM.yp, 310], [14, 70, 620]), rod([HM.x + 15, HM.yp, HM.zp], [HM.x + 35, HM.yp, HM.zp], 21, 16)), rod([HM.x - 31, HM.yp, HM.zp], [HM.x + 31, HM.yp, HM.zp], 20, 16)), { mat: 'wood' }),
-  mem('둥근 나무(손가락 모양, 2자 2치)', '#c9a77a', cyl([HM.x, WH.poleY, HM.zp + poleDZ + HM.t / 2 + 227.5], 30, 30, 455, 16), { mat: 'woodL', mv: 'pole' })]);
+  (() => { const pz = HM.zp + poleDZ, fy0 = WH.poleY - 25, fy1 = WH.poleY + 40, fc = (fy0 + fy1) / 2, top = WH.ring;   // pz = 핀 높이(모형 자세), 둥근 나무 꼭대기 = 쉬는 신의 발바닥
+    const plate = sx => diff(box([HM.x + sx * 20.5, fc, pz + 2], [6, fy1 - fy0, 44]), box([HM.x + sx * 20.5, WH.poleY + 10, pz], [10, 50, 10]));
+    return mem('둥근 나무(손가락 모양, 2자 2치)와 아래 갈래(핀이 미끄러지는 긴 홈)', '#c9a77a', uni(cyl([HM.x, WH.poleY, (pz + 30 + top) / 2], 30, 30, top - pz - 30, 16), plate(-1), plate(1), box([HM.x, fc, pz + 26], [47, fy1 - fy0, 8])), { mat: 'woodL', mv: 'pole' }) })()]);
 step('14_s12', '작은 판·받는 그릇', [mem('작은 판(小板, 여닫이)', WD, box([HM.x, HM.yN + 12, 470], [90, 8, 110]), { mat: 'wood', mv: 'pan12', piv: [HM.x, HM.yN + 12, 525], ax: [1, 0, 0] }),
   mem('작은 판 문틀', WD, uni(box([HM.x - 55, HM.yN + 12, 280], [14, 14, 560]), box([HM.x + 55, HM.yN + 12, 280], [14, 14, 560]), box([HM.x, HM.yN + 12, 532], [124, 14, 14])), { mat: 'wood' }),
   mem('쇠구슬 받는 그릇(12시)', WD2, diff(box([BIN.s.x, BIN.s.y, 75], [220, 220, 150]), box([BIN.s.x, BIN.s.y, 95], [190, 190, 150])), { mat: 'wood' })]);
 
 // ===== 15. 평륜·12신 =====
 group('15_pyeongryun', { n: '평륜과 12신', hj: '平輪 · 十二神', col: '#a3713e', mat: 'wood',
-  desc: '「보루각기」: 가운데 층 아래에 가로로 돌아가는 바퀴를 설치하고 바퀴를 따라 12신을 벌여 세우되, 각 신은 굵은 철사로 기둥을 만들어 오르내릴 수 있게 하며 각각 시패를 들고 번갈아 시간을 알린다. 바퀴 바깥에 1자쯤 되는 작은 판을 가로로 두고 가운데 구멍 위에 살짝 기울어진 구리판을 걸쳐 여닫게 한다. 신의 발이 구리판 아래로 반 치쯤 들어갔다가 올라가면 구리판이 열리고, 다시 닫힌다. 시가 끝나 바퀴로 돌아올 때는 발끝 쇠바퀴가 기울어진 구리판을 따라 굴러 내려오는데, 이 힘으로 바퀴가 한 칸(30°) 돌아 다음 신이 올라갈 자리에 섭니다(남문현의 해석).',
-  dim: '평륜 바깥지름 960, 쇠 기둥 지름 12, 신 높이 약 680(시패 포함), 시패 70×110 (가정값)' });
+  desc: '「보루각기」: 가운데 층 아래에 가로로 돌아가는 바퀴(평륜)를 설치하고 바퀴를 따라 12신을 벌여 세우되, 각 신은 굵은 쇠막대(鐵條)를 기둥 삼아 오르내리며 시패를 들고 번갈아 시를 알린다. 바퀴 바깥에 1자쯤 되는 작은 판을 두고 살짝 기울어진 구리판을 걸쳐 여닫게 하여, 신의 발이 구리판 아래에 있다가 올라가면 판이 열리고 지나간 뒤 다시 닫힌다. ─ 2007년 복원품(서준): 평륜은 한 축에 위·아래 두 바퀴(바퀴살 12개씩)를 쇠막대로 이은 것이고, 쇠막대 2개마다 지신 인형이 하나씩 끼워져 있다. 앞 시의 쇠구슬이 빠지면 둥근 나무가 내려가고 창문에 보이던 신이 제 무게로 내려오다가, 평륜 앞에 비스듬히 단 구리판에 막혀 발밑 쇠바퀴가 이 판을 타고 굴러 내린다. 신이 비스듬히 내려가는 동안 신이 끼워진 평륜 전체가 따라서 한 칸(30°) 돌고, 이번 시의 신이 둥근 나무 위로 옮겨 온다(남문현 2002 그림 3-6과 같은 원리). 1998년 문화재청 보고서는 기록의 묘사만으로는 평륜이 돌 수 없어 별도의 회전 장치가 필요하다고 보았는데, 이 비스듬한 구리판이 그 장치입니다.',
+  dim: '평륜 바깥지름 960, 위·아래 바퀴살 12개씩, 쇠막대 지름 10 × 24개, 축 지름 50, 구리판 길이 280 · 기울기 약 22°, 작은 판 1자(약 200), 신 높이 약 680(시패 포함) (가정값)' });
 const holesW = Array.from({ length: 12 }, (_, k) => { const a = (-90 + 30 * k) * Math.PI / 180; return cyl([WH.x + WH.R * Math.cos(a), WH.y + WH.R * Math.sin(a), WH.ring - 10], 46, 46, 26, 16) });
-const ringW = diff(lat([WH.x, WH.y, WH.ring - 20], [[300, 0], [480, 0], [480, 20], [300, 20]], 72), ...holesW);
-const rodsW = Array.from({ length: 12 }, (_, k) => { const a = (-90 + 30 * k + 0) * Math.PI / 180; return rod([WH.x + WH.rodR * Math.cos(a), WH.y + WH.rodR * Math.sin(a), WH.ring], [WH.x + WH.rodR * Math.cos(a), WH.y + WH.rodR * Math.sin(a), WH.top - 10], 12, 8) });
-const topW = uni(lat([WH.x, WH.y, WH.top - 10], [[315, 0], [345, 0], [345, 10], [315, 10]], 72), ...[0, 90].map(d => box([WH.x, WH.y, WH.top - 5], d ? [20, 630, 10] : [630, 20, 10])), cyl([WH.x, WH.y, (WH.top + BAY.mid) / 2], 50, 50, BAY.mid - WH.top, 20));
-step('15_pyeongryun', '평륜(가로 바퀴)', [mem('평륜과 쇠 기둥(鐵條)', '#7a5a3a', uni(ringW, ...rodsW, topW), { mat: 'wood', mv: 'wheel', piv: [WH.x, WH.y, 0], ax: [0, 0, 1] })]);
-const flapBoard = diff(box([WH.x, WH.y - 510, WH.ring + 42], [207, 80, 15]), cyl([WH.x, WH.y - 478, WH.ring + 42], 44, 44, 20, 16));
-step('15_pyeongryun', '작은 판과 구리판', [mem('바퀴 바깥 작은 판(1자, 구멍)', WD, uni(flapBoard, box([WH.x - 90, WH.y - 513, (WH.ring + 34) / 2], [20, 20, WH.ring + 34])), { mat: 'wood' }),
-  mem('기울어진 구리판(여닫이)', CU, (() => { const n = box([0, 0, 0], [70, 50, 3]); n.M = mul(T(WH.x - 5, WH.y - 478, WH.ring + 53), Ry(-8)); return n })(), { mat: 'copper', mv: 'flap', piv: [WH.x - 40, WH.y - 478, WH.ring + 51], ax: [0, 1, 0] })]);
+const pol = (r, deg, z) => { const a = deg * Math.PI / 180; return [WH.x + r * Math.cos(a), WH.y + r * Math.sin(a), z] };
+const spokes = (z, r0, r1, w, h) => Array.from({ length: 12 }, (_, k) => beam(pol(r0, -75 + 30 * k, z), pol(r1, -75 + 30 * k, z), w, h));
+// 아래 바퀴: 바퀴살 12개 + 테(신이 서는 자리, 둥근 나무가 지나는 구멍) / 위 바퀴: 바퀴살 12개 + 테 / 쇠막대(鐵條) 2개씩 12쌍 / 가운데 축
+const lowW = uni(diff(lat([WH.x, WH.y, WH.ring - 20], [[300, 0], [480, 0], [480, 20], [300, 20]], 72), ...holesW), ...spokes(WH.ring - 10, 45, 302, 30, 20), cyl([WH.x, WH.y, WH.ring - 15], 100, 100, 50, 24));
+const upW = uni(lat([WH.x, WH.y, WH.top - 10], [[322, 0], [362, 0], [362, 20], [322, 20]], 72), ...spokes(WH.top, 45, 324, 24, 16), cyl([WH.x, WH.y, WH.top], 90, 90, 40, 24));
+const rodsW = Array.from({ length: 12 }, (_, k) => { const a = (-90 + 30 * k) * Math.PI / 180, cx = WH.x + WH.rodR * Math.cos(a), cy = WH.y + WH.rodR * Math.sin(a);
+  return [-1, 1].map(s => rod([cx - s * 22 * Math.sin(a), cy + s * 22 * Math.cos(a), WH.ring], [cx - s * 22 * Math.sin(a), cy + s * 22 * Math.cos(a), WH.top - 10], 10, 8)) }).flat();
+const shaftW = uni(cyl([WH.x, WH.y, (WH.ring - 40 + BAY.mid + BAY.ft) / 2], 50, 50, BAY.mid + BAY.ft - (WH.ring - 40), 20), cyl([WH.x, WH.y, BAY.mid + BAY.ft + 8], 140, 140, 16, 32));   // 굴대는 가운데 층 마루에 매닮(머리 원판)
+step('15_pyeongryun', '평륜(가로 바퀴)', [mem('평륜: 한 축에 위·아래 바퀴(바퀴살 12개씩)와 쇠막대(鐵條) 12쌍', '#7a5a3a', uni(lowW, upW, ...rodsW, shaftW), { mat: 'wood', mv: 'wheel', piv: [WH.x, WH.y, 0], ax: [0, 0, 1] })]);
+// 바퀴 바깥 작은 판(1자)과 그 끝에 걸친 비스듬한 구리판(낮은 쪽 끝에 경첩)
+const rP = (deg, z) => pol(RAMP.r, deg, z), NS = 8;
+const arcN = (r, d0, d1, z0, z1, w, t) => uni(...Array.from({ length: NS }, (_, i) => { const a = d0 + (d1 - d0) * i / NS, b = d0 + (d1 - d0) * (i + 1) / NS, za = z0 + (z1 - z0) * i / NS, zb = z0 + (z1 - z0) * (i + 1) / NS;
+  const e = (d1 - d0) / NS * .08; return beam(pol(r, a - e, za - t / 2), pol(r, b + e, zb - t / 2), w, t) }));
+const rampN = arcN(RAMP.r, RAMP.th0, RAMP.th1, RAMP.z0 - (RAMP.z0 - RAMP.z1) * .0, RAMP.z1, RAMP.w, RAMP.t), pLo = rP(RAMP.th1, RAMP.z1 - RAMP.t / 2);
+const bTop = RAMP.z0 - RAMP.t, bMid = (RAMP.board[0] + RAMP.board[1]) / 2, post = pol(RAMP.r + 57, bMid, 0), bm = pol(RAMP.r + 5, bMid, 0);
+const boardN = uni(arcN(RAMP.r + 5, RAMP.board[0], RAMP.board[1], bTop, bTop, 50, 15), box([post[0], post[1], (bTop - 15) / 2], [26, 26, bTop - 15]), beam([post[0], post[1], bTop - 25], [bm[0], bm[1], bTop - 25], 20, 20));
+const hingeP = pol(RAMP.r + 40, RAMP.th1, 0);
+const rampAx = (() => { const a = RAMP.th1 * Math.PI / 180; return [Math.cos(a), Math.sin(a), 0] })();
+step('15_pyeongryun', '작은 판과 비스듬한 구리판', [mem('바퀴 바깥 작은 판(1자) — 구리판의 높은 끝을 받침', WD, boardN, { mat: 'wood' }),
+  mem('경첩 받침(구리판 낮은 끝)', WD, uni(box([hingeP[0], hingeP[1], (RAMP.z1 - RAMP.t - 6) / 2], [26, 26, RAMP.z1 - RAMP.t - 6]), beam([hingeP[0], hingeP[1], RAMP.z1 - RAMP.t - 9], [pLo[0], pLo[1], RAMP.z1 - RAMP.t - 9], 20, 6)), { mat: 'wood' }),
+  mem('비스듬한 구리판(여닫이) — 내려오는 신의 쇠바퀴가 굴러 평륜을 돌림', CU, rampN, { mat: 'copper', mv: 'flap', piv: pLo, ax: [rampAx[0], rampAx[1], 0] })]);
 // 12신 인형(국소: 바깥쪽 = -y)
 const dollL = () => uni(cyl([0, 0, 20], 60, 70, 40, 20), lat([0, 0, 40], [[0, 0], [52, 0], [40, 150], [30, 190], [0, 190]], 20), sph([0, 0, 255], 32), cyl([0, 0, 292], 46, 40, 20, 20),
-  rod([0, -14, 180], [0, -30, 560], 10, 8), (() => { const n = cyl([0, 0, 0], 20, 20, 8, 16); n.M = mul(T(0, -78, 15), Ry(90)); return n })(), rod([0, -30, 15], [0, -74, 15], 6, 8),
-  diff(cyl([0, WH.R - WH.rodR, 300], 26, 26, 40, 16), cyl([0, WH.R - WH.rodR, 300], 16, 16, 44, 12)), box([0, 47, 300], [12, 26, 10]));
+  rod([0, -14, 180], [0, -30, 560], 10, 8), (() => { const n = cyl([0, 0, 0], 20, 20, 8, 16); n.M = mul(T(0, -78, 15), Rx(90)); return n })(), rod([0, -30, 15], [0, -74, 15], 6, 8),
+  ...[-22, 22].map(x => diff(cyl([x, WH.R - WH.rodR, 300], 24, 24, 40, 16), cyl([x, WH.R - WH.rodR, 300], 14, 14, 44, 12))), box([0, 36, 300], [70, 32, 12]));
 const DOLLC = ['#3f5d8a', '#7c5a3a', '#8a3a2e', '#5a7a4a', '#4a6a7a', '#8a6a2e', '#8a2e3a', '#6a5a8a', '#5a5a5a', '#8a7a4e', '#3a6a5a', '#6a3a5a'];
 const dollM = k => { const a = -90 + 30 * k; return mul(T(WH.x + WH.R * Math.cos(a * Math.PI / 180), WH.y + WH.R * Math.sin(a * Math.PI / 180), WH.ring), Rz(a + 90)) };
 step('15_pyeongryun', '12신 인형', Array.from({ length: 12 }, (_, k) => mem(SI[k] + '시 신(' + SIH[k] + ')', DOLLC[k], xform(dollL(), dollM(k)), { mat: 'paint', mv: 'doll' + k, piv: [WH.x, WH.y, 0], ax: [0, 0, 1] })));

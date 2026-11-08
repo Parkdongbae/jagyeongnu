@@ -4,7 +4,7 @@ import { featureEdges } from './edges.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { Brush, Evaluator, SUBTRACTION, ADDITION } from 'three-bvh-csg';
 import { buildModel, SM, export_prof } from './model.js';
-const { VS, SS, LID, BM, PL, SB, IB, BOARD, TUBE, holeX, holeD, tbBall, RU, cw, dOf, CH, LV, SBOX, ARM, bw, BAY, S12, HM, WH, GK, TL, TR, YG, YJ, BIN, RATE, L0, SI, SIH, JEOLGI } = SM;
+const { RAMP, VS, SS, LID, BM, PL, SB, IB, BOARD, TUBE, holeX, holeD, tbBall, RU, cw, dOf, CH, LV, SBOX, ARM, bw, BAY, S12, HM, WH, GK, TL, TR, YG, YJ, BIN, RATE, L0, SI, SIH, JEOLGI } = SM;
 
 const $ = id => document.getElementById(id);
 let jeolgi = 0;
@@ -307,15 +307,16 @@ function buildAnim(e, v) {
     mv(iid, [S12.tubeX, S12.tubeY, S12.spoonZ + 6 + IB.r], 0, true);
     note('쇠구슬이 짧은 수직 원통으로 떨어져 출구를 가로막은 숟가락의 둥근 머리를 칩니다. 숟가락 꼬리가 들리며 둥근 기둥 속의 들림막대가 튀어 올라, 위층 마루 구멍을 지나 사시신의 팔꿈치 홈을 밀어 올립니다. 팔은 손과 팔꿈치 가운데의 축을 중심으로 돌아, 손에 쥔 채가 앞으로 내려와 종을 한 번 친 뒤 곧바로 제자리로 돌아갑니다.', 'fig_s', '⑥ 숟가락 → 들림막대 → 팔꿈치: 종 1번');
     pulse('sp12', 20, .5); strike('s', 'link_s', 'bell');
-    note(`숟가락과 쇠줄로 이어진 작은 판이 열려, 횡목 북쪽 끝을 누르고 있던 앞 시의 쇠구슬이 빠져나갑니다. 횡목 남쪽 끝이 내려가면서 ${SI[cp]}시 신이 바퀴 위로 돌아오고, 발끝 쇠바퀴가 기울어진 구리판을 따라 굴러 내려오며 평륜이 한 칸(30°) 돌아 ${SI[e.si]}시 신이 올라갈 자리에 섭니다.`, 'wheel', '⑦ 앞 시의 구슬이 빠지고 평륜이 30° 돎');
+    note(`숟가락과 쇠줄로 이어진 작은 판이 열려, 횡목 북쪽 끝을 누르고 있던 앞 시의 쇠구슬이 빠져나갑니다. 횡목의 남쪽 끝과 그 위의 둥근 나무가 내려가, 창문에 보이던 ${SI[cp]}시 신을 받치던 힘이 사라집니다.`, 'wheel', '⑦ 앞 시의 구슬이 빠지고 둥근 나무가 내려감');
     rot('pan12', 0, 60, .3); const hp = holdPos(-HMA); at(prevId, hp); tt += .3;
     mv(prevId, [HM.x, HM.yN + 45, hp[2] - 5], 500); mv(prevId, binPos('s', prevBin), 0, true); const tFall = tt;
-    tt -= .6; rot('hm', -2 * HMA, 0, .7); off('pole', u => poleRel(-HMA + 2 * HMA * ease(u)), .7); off('doll' + cp, u => [0, 0, WH.lift * (1 - ease(u))], .7); pulse('flap', -28, .7);
+    tt -= .6; rot('hm', -2 * HMA, 0, .7); off('pole', u => poleRel(-HMA + 2 * HMA * ease(u)), .7); off('doll' + cp, u => [0, 0, WH.lift + (RAMP.dollOff(0) - WH.lift) * ease(u)], .7);
     tt = Math.max(tt + .7, tFall); rot('pan12', 60, 0, .3, tt - .2);
-    const a0 = -30 * cp; ['wheel', ...Array.from({ length: 12 }, (_, q) => 'doll' + q)].forEach(id => rot(id, a0, a0 - 30, 1.3)); tt += 1.4;
-    note(`숟가락을 친 쇠구슬은 둥근 기둥에 붙은 통으로 떨어져 횡목의 북쪽 끝을 누릅니다. 횡목 남쪽 끝에 세운 둥근 나무가 올라가 ${SI[e.si]}시 신의 발을 떠받쳐, 신이 구리판을 열고 가운데 층으로 올라와 시패 「${SIH[e.si]}」를 보여 줍니다. 쇠구슬은 다음 시까지 횡목 위에 머뭅니다.`, 'wheel', '⑧ 횡목을 눌러 다음 신이 올라옴');
+    note(`둥근 나무가 내려가자 창문에 보이던 ${SI[cp]}시 신이 제 무게로 내려오다가, 평륜 앞에 비스듬히 단 구리판에 막힙니다. 신의 발밑 쇠바퀴가 구리판을 타고 비스듬히 굴러 내려가는 동안, 신이 끼워진 쇠막대를 통해 평륜 전체가 한 칸(30°) 돕니다. 그 결과 ${SI[e.si]}시 신이 둥근 나무 위(올라갈 자리)로 옮겨 옵니다. ─ 물이나 다른 힘 없이 신의 무게만으로 바퀴를 돌리는 장치입니다.`, 'wheel', '⑧ 신이 구리판을 굴러 내려가며 평륜이 30° 돎');
+    const a0 = -30 * cp; ['wheel', ...Array.from({ length: 12 }, (_, q) => 'doll' + q)].forEach(id => rot(id, a0, a0 - 30, 1.6)); off('doll' + cp, u => [0, 0, RAMP.dollOff(ease(u))], 1.6); tt += 1.7;
+    note(`숟가락을 친 쇠구슬은 둥근 기둥에 붙은 통으로 떨어져 횡목의 북쪽 끝을 누릅니다. 횡목 남쪽 끝의 핀이 둥근 나무 아래 갈래의 홈을 밀어 둥근 나무가 올라가 ${SI[e.si]}시 신의 발을 떠받쳐, 신의 발밑 쇠바퀴가 구리판을 밀어 올려 열고 지나가면 구리판은 제 무게로 다시 닫히고, 신은 가운데 층으로 올라와 시패 「${SIH[e.si]}」를 보여 줍니다. 쇠구슬은 다음 시까지 횡목 위에 머뭅니다.`, 'wheel', '⑨ 횡목을 눌러 다음 신이 올라옴');
     mv(iid, holdPos(HMA), 0, true);
-    rot('hm', 0, -2 * HMA, .9); off('pole', u => poleRel(HMA - 2 * HMA * ease(u)), .9); off('doll' + e.si, u => [0, 0, WH.lift * ease(u)], .9); pulse('flap', -28, .9);
+    rot('hm', 0, -2 * HMA, .9); off('pole', u => poleRel(HMA - 2 * HMA * ease(u)), .9); off('doll' + e.si, u => [0, 0, WH.lift * ease(u)], .9); rot('flap', 0, RAMP.open, .22, tt + .22); rot('flap', RAMP.open, 0, .2, tt + .5);
     off(iid, u => { const a = holdPos(HMA - 2 * HMA * ease(u)), b = holdPos(HMA); return [a[0] - b[0], a[1] - b[1], a[2] - b[2]] }, .9); tt += 1.1;
   } else if (tp === 'g') {
     const n = e.gyeong;
@@ -354,6 +355,7 @@ const ease = u => u < .5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
 function animPose(A, tau, P) {
   for (const id in A.trk) { const L = A.trk[id]; if (tau >= L[0].t || id === A.sid) P[id] = { pos: kfAt(L, tau) } }
   for (const r of A.rot) if (tau >= r.t0) { const u = Math.min(1, (tau - r.t0) / (r.t1 - r.t0)); const a = r.pulse ? r.a1 * Math.sin(Math.PI * u) : r.a0 + (r.a1 - r.a0) * ease(u); P[r.id] = { ...(P[r.id] || {}), ang: a } }
+  if (A.wroll && tau >= A.wroll.t0) { const w = A.wroll, u = Math.min(1, (tau - w.t0) / (w.t1 - w.t0)), a = w.a0 - 30 * w.rl(u); for (const id of ['wheel', ...Array.from({ length: 12 }, (_, q) => 'doll' + q)]) P[id] = { ...(P[id] || {}), ang: a } }
   for (const o of A.off) if (tau >= o.t0) { const u = Math.min(1, (tau - o.t0) / (o.t1 - o.t0)); const d = o.f(u);
     const q = P[o.id] || {}; if (q.pos) P[o.id] = { pos: [q.pos[0] + d[0], q.pos[1] + d[1], q.pos[2] + d[2]] }; else P[o.id] = { ...q, off: d } }
   let nt = null; for (const n of A.notes) if (tau >= n.t) nt = n; return nt;
@@ -484,9 +486,10 @@ function drawGraph(force) {
 $('src').innerHTML = `<details><summary><b>치수와 자료의 출처</b></summary>
 <p><b>원전</b> — 「보루각기」(세종실록 16년 7월 1일): 파수호 4 · 수수호 2(번갈아 사용), 수수호 길이 11자 2치 · 지름 1자 8치, 잣대 10자 2치, 방목 길이 11자 4치 · 너비 6치 · 두께 8푼 · 깊이 4치, 왼쪽 동판 너비 2치 · 구멍 12, 오른쪽 동판 너비 2치 5푼 · 구멍 25(12판을 절기마다 교체), 가로쇠 4치 5푼, 광판 위 칸막이 4 · 쇠구슬 12 · 5 · 20, 동통 4자 5치 · 8자 · 지름 1치 5푼, 위층 3신과 짧은 통 · 둥근 기둥 2 · 네모 기둥 2(통 4개씩), 횡목 6자 6치 × 1치 5푼 × 1치 7푼, 둥근 나무 2자 2치, 평륜과 쇠 기둥, 기울어진 구리판. 1자 = 주척 20.7cm(남문현·한영호 1996).</p>
 <p><b>해석</b> — 작동 순서와 경점기 구조는 남문현의 그림 3-1 · 3-2 · 3-6 · 3-7을 따랐습니다(경의 수만큼 북, 점의 수만큼 징). 방목은 김종성(2023) 「장영실의 자격루에 있어서 방목의 구조와 작동원리에 대한 새로운 가설」을 따라 단면 6치×6치, 두 동판의 엇갈린 배치, 방목 안 구슬 통로로 만들었습니다(남문현은 방목 양옆의 그릇으로 받는다고 봄). 4번째 파수호를 넘친 물을 받는 폐호로 본 것은 남문현의 해석입니다. 수위 2시간당 16.6cm는 남문현·한영호(1996)의 모의실험 값입니다.</p>
-<p><b>복원품</b> — 서준(2007) 「자격루 복원과정과 의의」(『고궁문화』 창간호, 국립고궁박물관): 3층 궤(위층 종·북·징과 3신 / 가운데 층 철환 방출장치 / 아래층 경점기·12신), 광판의 X자 홈, 동통부와 4통로 철환 방출부(횡기 손잡이가 들린 채 멈춤, 통로는 입구 쪽으로 기울어짐), 쇠구슬 지름 약 47mm, 3신 팔의 회전축(손과 팔꿈치 가운데)과 원주 속 들림막대(1,700mm), 종틀·북틀·징틀. 3신의 동서 순서는 이 앱의 배치(시·경·점)를 그대로 두었습니다(복원품은 사경신·사점신이 서쪽).</p>
+<p><b>복원품</b> — 서준(2007) 「자격루 복원과정과 의의」(『고궁문화』 창간호, 국립고궁박물관): 3층 궤(위층 종·북·징과 3신 / 가운데 층 철환 방출장치 / 아래층 경점기·12신), 광판의 X자 홈, 동통부와 4통로 철환 방출부(횡기 손잡이가 들린 채 멈춤, 통로는 입구 쪽으로 기울어짐), 쇠구슬 지름 약 47mm, 평륜(한 굴대에 위아래 두 바퀴 · 바퀴살 12개씩, 쇠막대마다 지신 인형, 창문 높이의 인형이 자기 무게로 내려가다 평륜 앞 비스듬한 구리판에 가로막혀 발밑 쇠바퀴가 굴러 내리는 동안 평륜 전체가 돎, 교체 3초 이내 — p.116), 3신 팔의 회전축(손과 팔꿈치 가운데)과 원주 속 들림막대(1,700mm), 종틀·북틀·징틀. 3신의 동서 순서는 이 앱의 배치(시·경·점)를 그대로 두었습니다(복원품은 사경신·사점신이 서쪽).</p>
+<p><b>평륜이 도는 원리</b> — 「보루각기」: 바퀴 밖 작은 판(1자)에 살짝 기울어진 구리판을 걸쳐 여닫게 하고, 시가 끝나 돌아오는 신의 발끝 쇠바퀴가 구리판을 굴러 내려옴. 서준(2007): 내려오던 신이 평륜 앞 비스듬한 구리판에 가로막혀 쇠바퀴가 판을 굴러 내리는 동안 평륜 전체가 돎, 평륜은 한 굴대의 위·아래 바퀴(바퀴살 12개씩)를 쇠막대로 이음. 남문현(2002) 『장영실과 자격루』 그림(평륜 · 쇠막대 · 보시신 · 다음 시의 신 · 발밑 쇠바퀴 · 구리판 여닫이 · 둥근 나무). 1998년 문화재청 보고서는 기록의 묘사만으로는 평륜이 돌 수 없어 별도 회전 장치가 필요하다고 지적함(경석현, 「한국 근현대 자격루 연구 약사」, 『과학사와 과학유산』 학술대회 자료집, 2022).</p>
 <p><b>유물</b> — 1536년 자격루(국보): 대파수호 지름 94 · 높이 71cm, 소파수호 지름 46.5 · 높이 40.5cm.</p>
-<p><b>가정값</b> — 누대 · 동쪽 칸 · 광판 크기, 중파수호 · 폐호 크기, 관 지름, 부표, 잣대 단면, 작은 구슬 지름 16(8푼), 쇠구슬 지름 45, 숟가락 · 기둥 · 통 · 인형 크기, 수수호를 바꾸는 시각(오정, 정오), 교대 직후 물 깊이 205mm. 경점 시각은 서울(북위 37.57°)의 해돋이 · 해넘이로 혼(해진 뒤 2.5각)부터 신(해뜨기 전 2.5각)까지를 25점으로 나눴습니다(지방 태양시). 세종 때는 《수시력》의 북경 값을 썼습니다.</p></details>`;
+<p><b>가정값</b> — 누대 · 동쪽 칸 · 광판 크기, 중파수호 · 폐호 크기, 관 지름, 부표, 잣대 단면, 작은 구슬 지름 16(8푼), 쇠구슬 지름 45, 숟가락 · 기둥 · 통 · 인형 크기, 평륜 앞 비스듬한 구리판의 크기 · 기울기(호 34° · 길이 약 280mm · 높이차 106mm · 약 22°, 「보루각기」의 「완만하게 기울여」를 따름), 평륜을 가운데 층 마루에 매단 방식, 수수호를 바꾸는 시각(오정, 정오), 교대 직후 물 깊이 205mm. 경점 시각은 서울(북위 37.57°)의 해돋이 · 해넘이로 혼(해진 뒤 2.5각)부터 신(해뜨기 전 2.5각)까지를 25점으로 나눴습니다(지방 태양시). 세종 때는 《수시력》의 북경 값을 썼습니다.</p></details>`;
 
 // ---------- 그리기 ----------
 let last = performance.now(), dirty = true;
@@ -551,6 +554,6 @@ let followP = null;
   });
   ren.render(sc, cam);
 })(performance.now());
-window.__sim = { list: () => evTimes().map(x => [x.e.kind, x.e.i, +x.hh.toFixed(3)]), day: d => { simDay = d; dirty = true }, set: (h, j) => { if (j != null && j !== jeolgi) { jeolgi = j; jsel.value = j; rebuildSeasonal() } anim = null; simH = h; dirty = true }, run: v => { running = v; updPlay() }, ev: x => { const L = evTimes(); simH = L[x].hh; startAnim(L[x]) }, tau: v => { if (anim) anim.tau = v }, st: () => ({ simH, anim: anim && { tau: anim.tau, dur: anim.A.dur, e: anim.x.e, snd: anim.A.snd.map(s => s.t) }, ready }), mode: setMode, cam: goCam };
+window.__sim = { list: () => evTimes().map(x => [x.e.kind, x.e.i, +x.hh.toFixed(3)]), day: d => { simDay = d; dirty = true }, set: (h, j) => { if (j != null && j !== jeolgi) { jeolgi = j; jsel.value = j; rebuildSeasonal() } anim = null; simH = h; dirty = true }, run: v => { running = v; updPlay() }, ev: x => { const L = evTimes(); simH = L[x].hh; startAnim(L[x]) }, tau: v => { if (anim) anim.tau = v }, nt: () => anim && anim.A.notes.map(n => [+n.t.toFixed(2), n.title]), st: () => ({ simH, anim: anim && { tau: anim.tau, dur: anim.A.dur, e: anim.x.e, snd: anim.A.snd.map(s => s.t) }, ready }), mode: setMode, cam: goCam };
 size(); setCam(); setMode('run'); show(N);
 buildAll().then(() => { show(cur); drawGraph(true) });
